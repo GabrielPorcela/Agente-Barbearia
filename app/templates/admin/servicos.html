@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Serviços - Barbearia{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Serviços</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5 card-title">Cadastrar novo serviço</h2>
+        <form method="post" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="nome">Nome do serviço</label>
+                <input type="text" class="form-control" id="nome" name="nome"
+                       placeholder="Ex: Corte de cabelo" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="duracao">Duração (minutos)</label>
+                <input type="number" class="form-control" id="duracao" name="duracao"
+                       min="1" placeholder="Ex: 30" required>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Serviços cadastrados</h2>
+{% if servicos %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Duração (min)</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for servico in servicos %}
+            <tr>
+                <td>{{ servico.id }}</td>
+                <td>{{ servico.nome }}</td>
+                <td>{{ servico.duracao }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">Nenhum serviço cadastrado ainda.</div>
+{% endif %}
+{% endblock %}
