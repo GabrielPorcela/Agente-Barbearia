@@ -19,7 +19,7 @@ from datetime import date, datetime, time
 
 from app.models import Agendamento, Cliente, Servico
 from app.services import agendamento_service
-from app.services.openai_service import interpretar_intencao
+from app.services.gemini_service import interpretar_intencao
 
 # ---------------------------------------------------------------------------
 # Ponto de entrada
