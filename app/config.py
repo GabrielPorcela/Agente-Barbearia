@@ -20,6 +20,9 @@ class Config:
 
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+
     WHATSAPP_PROVIDER = os.getenv("WHATSAPP_PROVIDER")
     WHATSAPP_API_TOKEN = os.getenv("WHATSAPP_API_TOKEN")
     WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")

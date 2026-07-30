@@ -1,10 +1,13 @@
 import json
+import logging
 import os
 from datetime import date
 
 from google import genai
 
-MODEL = os.getenv("GEMINI_MODEL", "models/gemini-3.6-flash")
+logger = logging.getLogger(__name__)
+
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 
 INTENCOES_VALIDAS = {
     "agendar",
@@ -96,28 +99,37 @@ def interpretar_intencao(mensagem: str):
 
         client = _get_client()
 
+        # Nota: "temperature" foi removido do config abaixo porque a família
+        # de modelos Gemini 3.x (incluindo o gemini-3.6-flash usado por
+        # padrão) descontinuou os parâmetros de amostragem temperature/
+        # top_p/top_k — enviá-los deixou de ter efeito e passará a retornar
+        # erro HTTP 400 em gerações futuras. Para manter respostas
+        # determinísticas, a instrução já deixa claro no prompt que a saída
+        # deve ser sempre o mesmo JSON estruturado, sem variação livre.
         resposta = client.models.generate_content(
             model=MODEL,
             contents=mensagem,
             config={
                 "system_instruction": _SYSTEM_PROMPT,
-                "temperature": 0,
             },
         )
 
-        print("\n===== RESPOSTA DO GEMINI =====")
-        print(repr(resposta.text))
-        print("==============================\n")
+        texto_resposta = (resposta.text or "").strip()
+        # Robustez extra: mesmo com a instrução de "nunca usar markdown",
+        # o modelo eventualmente envolve o JSON em ```json ... ``` — remove
+        # as cercas de código antes de tentar o parse, em vez de falhar.
+        if texto_resposta.startswith("```"):
+            texto_resposta = texto_resposta.strip("`")
+            if texto_resposta.startswith("json"):
+                texto_resposta = texto_resposta[4:]
+            texto_resposta = texto_resposta.strip()
 
-        dados = json.loads(resposta.text)
+        logger.debug("Resposta bruta do Gemini: %r", texto_resposta)
+
+        dados = json.loads(texto_resposta)
 
     except Exception:
-
-        import traceback
-
-        print("\n========== ERRO GEMINI ==========")
-        traceback.print_exc()
-        print("=================================\n")
+        logger.exception("Falha ao interpretar intenção via Gemini")
 
         return {
             "intencao": "conversa_normal",
