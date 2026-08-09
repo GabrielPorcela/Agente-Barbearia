@@ -121,7 +121,7 @@ def _configurar_banco_de_dados(app: Flask) -> None:
         # Alguns provedores (Render, Heroku) fornecem a URL com o prefixo
         # legado "postgres://", que o SQLAlchemy 1.4+ não aceita mais.
         if database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql://", 1)
+            database_url = database_url.replace("postgres://", "postgresql+psycopg://", 1)
 
         app.config["SQLALCHEMY_DATABASE_URI"] = database_url
         app.logger.info("Usando banco de dados definido em DATABASE_URL.")
