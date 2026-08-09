@@ -3,7 +3,10 @@ import logging
 import os
 from datetime import date
 
+from dotenv import load_dotenv
 from google import genai
+
+load_dotenv(override=True)
 
 logger = logging.getLogger(__name__)
 
