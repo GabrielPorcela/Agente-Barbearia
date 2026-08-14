@@ -49,6 +49,7 @@ def create_app(env: str = "development") -> Flask:
     try:
         _configurar_secret_key(app)
         _configurar_banco_de_dados(app)
+        _verificar_config_whatsapp(app)
 
         db.init_app(app)
 
@@ -91,6 +92,30 @@ def _configurar_secret_key(app: Flask) -> None:
             "apenas para esta execuÃ§Ã£o. Defina SECRET_KEY nas variÃ¡veis de ambiente "
             "do Render para produÃ§Ã£o (necessÃ¡rio para sessÃ£o/flash funcionarem "
             "de forma consistente entre reinÃ­cios e mÃºltiplos workers)."
+        )
+
+
+def _verificar_config_whatsapp(app: Flask) -> None:
+    """
+    Registra, no log de inicialização, se WHATSAPP_VERIFY_TOKEN e
+    WHATSAPP_APP_SECRET foram carregados do ambiente — nunca o valor em
+    si, apenas se está presente/ausente. Isso existe porque, na prática,
+    o sintoma mais comum de "Meta não valida o webhook" é a variável de
+    ambiente simplesmente não estar definida (ou não redefinida após um
+    deploy) no Render, o que hoje só aparece como um 403 genérico sem
+    nenhuma pista nos logs.
+    """
+    if not app.config.get("WHATSAPP_VERIFY_TOKEN"):
+        app.logger.warning(
+            "WHATSAPP_VERIFY_TOKEN não está definida no ambiente — a "
+            "verificação GET /whatsapp/webhook vai rejeitar qualquer "
+            "token enviado pela Meta até essa variável ser configurada."
+        )
+    if not app.config.get("WHATSAPP_APP_SECRET"):
+        app.logger.warning(
+            "WHATSAPP_APP_SECRET não está definida no ambiente — a "
+            "validação de assinatura do POST /whatsapp/webhook está "
+            "desativada (modo dev). Configure-a antes de ir para produção."
         )
 
 
